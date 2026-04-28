@@ -1,6 +1,7 @@
 # AWS IAC - Terraform Exercise
 
-## 📋 Descripción
+## Descripción
+
 Proyecto educativo de Terraform que provisiona una infraestructura completa en AWS incluyendo:
 - VPC con subnet pública
 - Internet Gateway y enrutamiento
@@ -10,9 +11,10 @@ Proyecto educativo de Terraform que provisiona una infraestructura completa en A
 
 ---
 
-## 🚀 Pre-requisitos
+## Pre-requisitos
 
-### 1. **Generar SSH Key** (MUY IMPORTANTE)
+### 1. Generar SSH Key
+
 Cada usuario debe generar su propia SSH key antes de ejecutar Terraform:
 
 ```bash
@@ -23,192 +25,230 @@ Esto crea:
 - `~/.ssh/terraform-aws-key` (private key - NUNCA compartir)
 - `~/.ssh/terraform-aws-key.pub` (public key - importada a AWS)
 
-### 2. **Configurar AWS CLI** (Credenciales)
+### 2. Configurar AWS CLI
 
-Las credenciales de AWS se deben configurar **UNA SOLA VEZ** en tu máquina:
+Las credenciales de AWS se deben configurar una sola vez en tu máquina:
 
 ```bash
 aws configure
 ```
 
-**Te pedirá:**
-- `AWS Access Key ID` → Pega tu Access Key (de AWS Console)
-- `AWS Secret Access Key` → Pega tu Secret Key (de AWS Console)
-- `Default region name` → `us-east-1`
-- `Default output format` → `json`
+Se te pedirá:
+- AWS Access Key ID: Tu clave de acceso (de AWS Console)
+- AWS Secret Access Key: Tu clave secreta (de AWS Console)
+- Default region name: `us-east-1`
+- Default output format: `json`
 
-**¿Dónde se guardan?**
-- Se almacenan en `~/.aws/credentials` (NUNCA se versionará)
-- Este archivo está en `.gitignore` por seguridad
+Las credenciales se guardan en `~/.aws/credentials` (protegido por .gitignore).
 
-**Verificar que funciona:**
+Verificar que funciona:
+
 ```bash
 aws sts get-caller-identity
-# Debería mostrar tu AWS Account ID
 ```
 
-### 3. **Inyectar tu IP pública** (Variable de entorno)
+### 3. Inyectar tu IP pública como variable de entorno
 
-En lugar de hardcodear tu IP en `terraform.tfvars`, úsala como variable de entorno:
+En lugar de hardcodear la IP en archivos de configuración, úsala como variable de entorno:
 
 ```bash
-# Obtener tu IP y pasarla a Terraform
 export TF_VAR_my_ip="$(curl -s https://api.ipify.org)/32"
-
-# Verificar que se captó correctamente
 echo $TF_VAR_my_ip
 ```
 
-**¿Por qué así?**
-- ✅ No hardcodea credenciales en archivos
-- ✅ Sigue best practices del profesor
-- ✅ Variable de entorno se aplica automáticamente
-- ✅ Más seguro para producción
+Esta práctica es más segura y sigue las recomendaciones de best practices para evitar comprometer datos sensibles en el código.
 
-**Alternativa (si prefieres editar manualmente):**
+Alternativa manual (menos recomendada):
 
-Edita `terraform.tfvars`:
-```hcl
-my_ip = "TU_IP_PUBLICA/32"  # Ej: "203.45.123.456/32"
-```
-
-⚠️ **Obtener tu IP:**
 ```bash
-curl https://api.ipify.org
-# Salida: 203.45.123.456
+curl https://api.ipify.org  # Obtener tu IP
+# Editar terraform.tfvars: my_ip = "TU_IP/32"
 ```
 
 ---
 
-## 📝 Configuración
+## Configuración
 
-### Step 1: Obtener credenciales de AWS
+### Paso 1: Obtener credenciales de AWS
 
-1. Ve a [AWS Console](https://console.aws.amazon.com)
-2. Accede a IAM → Users → Tu usuario
-3. Genera un "Access Key" y copia:
-   - Access Key ID
-   - Secret Access Key
+1. Acceder a AWS Console
+2. IAM → Users → Crear Access Key
+3. Copiar Access Key ID y Secret Access Key
 
-### Step 2: Configurar en tu máquina
+### Paso 2: Configurar AWS CLI
 
 ```bash
 aws configure
 ```
 
-### Step 3: Configurar variables de Terraform
+### Paso 3: Valores por defecto en terraform.tfvars
 
-Los valores por defecto en `terraform.tfvars` funcionan para aprendizaje:
+Los valores ya están configurados en el archivo:
 
 ```hcl
 aws_region         = "us-east-1"
 project_name       = "aws-iac-05-lemoncode"
 environment        = "learning"
-# my_ip se inyecta via TF_VAR_my_ip (ver arriba)
 vpc_cidr           = "10.0.0.0/16"
 public_subnet_cidr = "10.0.1.0/24"
 ```
 
-**Si quieres cambiar valores:**
-- Edita `terraform.tfvars`
-- O usa flags: `terraform plan -var="aws_region=eu-west-1"`
+Para cambiar valores, edita `terraform.tfvars` o usa flags: `terraform plan -var="aws_region=eu-west-1"`
 
 ---
 
-## 🛠️ Uso
+## Ejecución
 
-### **Inicializar Terraform**
+### Inicializar Terraform
+
 ```bash
 terraform init
 ```
 
-### **Revisar cambios**
+### Ver plan de cambios
+
 ```bash
 terraform plan
 ```
 
-### **Crear infraestructura**
+### Crear infraestructura
+
 ```bash
 terraform apply
 ```
 
-### **Ver outputs** (IP pública de la instancia)
+### Ver outputs (incluyendo IP pública)
+
 ```bash
 terraform output
 ```
 
-### **Destruir infraestructura**
+### Destruir infraestructura
+
 ```bash
 terraform destroy
 ```
 
 ---
 
-## 🔗 Conectar a la instancia
+## Conexión a la instancia
+
+Una vez que `terraform apply` termine, obtén la IP pública:
 
 ```bash
-# Conectar via SSH
-ssh -i ~/.ssh/terraform-aws-key ubuntu@<PUBLIC_IP>
+terraform output instance_public_ip
+```
 
-# Verificar Docker
+Conectar por SSH:
+
+```bash
+ssh -i ~/.ssh/terraform-aws-key ec2-user@<PUBLIC_IP>
+```
+
+Dentro de la instancia, verificar Docker:
+
+```bash
 docker --version
+docker ps
+```
 
-# Desplegar NGINX
+Desplegar NGINX:
+
+```bash
 docker run -d -p 80:80 --name nginx nginx
+```
 
-# Verificar NGINX
+Verificar que NGINX responde:
+
+```bash
 curl http://<PUBLIC_IP>
 ```
 
 ---
 
-## ⚠️ Notas Importantes
+## Decisiones técnicas
 
-1. **SSH Key**: Cada usuario debe generar la suya - NO compartir private keys
-2. **IP de acceso**: Actualizar `my_ip` en `terraform.tfvars` con tu IP pública
-3. **Free Tier**: Este proyecto usa `t2.micro` (free tier eligible)
-4. **Costos**: Destruir recursos cuando no se usen: `terraform destroy`
-5. **State**: El archivo `terraform.tfstate` está en `.gitignore` (no versionar)
+### Región: us-east-1
+
+Se eligió us-east-1 por varias razones:
+- Región con mayor disponibilidad de servicios free tier
+- Mejor compatibilidad con instancias t3.micro (que es free tier)
+- Región más económica para experimentación educativa
+- Soporte completo para todos los recursos del ejercicio (VPC, IGW, EC2, Security Groups)
+
+La región se puede cambiar editando `terraform.tfvars`, pero esto puede afectar la disponibilidad de free tier según tu cuenta.
+
+### Instancia: t3.micro
+
+Se utiliza t3.micro en lugar de t2.micro porque:
+- Ambas son free tier eligible
+- t3.micro es más moderna y eficiente
+- Mejor rendimiento para ejecutar Docker
+- Soportada en todas las availability zones de us-east-1
+
+Si tu cuenta no soporta t3.micro, el `terraform apply` lo indicará. En ese caso, cambia el valor en `locals.tf`.
+
+### Información sensible
+
+- Las credenciales de AWS nunca se hardcodean en archivos versionados
+- La IP de acceso SSH se inyecta como variable de entorno
+- El archivo `.tfstate` (estado de Terraform) está en `.gitignore` para proteger datos sensibles
+- Las SSH keys privadas están excluidas del repositorio
 
 ---
 
-## 📚 Estructura de archivos
+## Estructura de archivos
 
-- `provider.tf` - Configuración de AWS
+- `provider.tf` - Configuración de proveedor AWS
 - `variables.tf` - Declaración de variables
-- `terraform.tfvars` - Valores específicos (cambiar por usuario)
+- `terraform.tfvars` - Valores específicos por ambiente
 - `locals.tf` - Variables locales calculadas
-- `network.tf` - Recursos de red (VPC, subnet, IGW, route table, SG)
-- `keypair.tf` - SSH key pair
-- `outputs.tf` - Outputs (IP pública, etc)
-- `README.md` - Este archivo
+- `network.tf` - Recursos de red (VPC, subnet, IGW, route table, Security Group)
+- `keypair.tf` - SSH key pair resource
+- `ec2.tf` - EC2 instance con user_data
+- `outputs.tf` - Valores de salida (IP pública, IDs de recursos, etc)
+- `user_data.sh` - Script bash ejecutado al iniciar la instancia (instala Docker)
+- `.devcontainer/devcontainer.json` - Configuración del dev container
 
 ---
 
-## 🔍 Debugging
+## Debugging
+
+Comandos útiles para troubleshooting:
 
 ```bash
-# Ver variables
+# Ver todas las variables y sus valores
 terraform console
 
-# Ver estado actual
+# Ver el estado actual de los recursos
 terraform show
 
-# Logs detallados
+# Ver logs detallados
 TF_LOG=DEBUG terraform plan
+
+# Validar sintaxis
+terraform validate
+
+# Formatear código
+terraform fmt
 ```
 
 ---
 
-**Autor**: Terraform Learning Exercise  
+## Pruebas realizadas
+
+### SSH Connection
+
+![SSH connection test](image.png)
+
+### Instance created in AWS
+
+![EC2 instance created](image-1.png)
+
+### Docker installation verified
+
+![Docker version running](image-2.png)
+
+---
+
 **Última actualización**: 2026-04-28
-
-SSH conection
-![alt text](image.png)
-
-
-instance created
-![alt text](image-1.png)
-
-Docker version
-![alt text](image-2.png)
