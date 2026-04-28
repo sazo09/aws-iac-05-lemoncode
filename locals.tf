@@ -27,4 +27,8 @@ locals {
   subnet_name         = "${local.name_prefix}-subnet-publica"
   route_table_name    = "${local.name_prefix}-rt-publica"
   security_group_name = "${local.name_prefix}-sg"
+
+  # Configuración de instancia (GARANTIZA FREE TIER)
+  # t3.micro es free tier eligible en esta cuenta (más moderno que t2.micro)
+  instance_type_free_tier = "t3.micro"
 }

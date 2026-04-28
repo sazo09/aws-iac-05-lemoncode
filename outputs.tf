@@ -67,9 +67,31 @@ output "access_rules_summary" {
     http_access = "Puerto 80: Accesible desde cualquier IP (0.0.0.0/0)"
     ssh_access  = "Puerto 22: Accesible desde ${var.my_ip}"
   }
+  sensitive = true  # ← Contiene my_ip que es sensible
 }
 
 output "key_pair_name"{
   description = "Nombre del key pair creado"
   value       = aws_key_pair.ejercicio.key_name
+}
+
+# EC2 Instance Outputs
+output "instance_public_ip" {
+  description = "IP pública de la instancia EC2 - NECESARIA para SSH"
+  value       = aws_instance.main.public_ip
+}
+
+output "instance_public_dns" {
+  description = "DNS público de la instancia (alternativa a IP)"
+  value       = aws_instance.main.public_dns
+}
+
+output "instance_id" {
+  description = "ID de la instancia EC2"
+  value       = aws_instance.main.id
+}
+
+output "ssh_connection_command" {
+  description = "Comando para conectarse por SSH a la instancia (usuario: ec2-user para Amazon Linux)"
+  value       = "ssh -i ~/.ssh/terraform-aws-key ec2-user@${aws_instance.main.public_ip}"
 }

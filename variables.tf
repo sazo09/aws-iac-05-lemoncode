@@ -21,9 +21,10 @@ variable "project_name" {
 }
 
 variable "my_ip" {
-  description = "Tu dirección IP pública para acceso SSH (IMPORTANTE: cámbiala por tu IP real). Obtén tu IP con: curl https://api.ipify.org"
+  description = "Tu dirección IP pública para acceso SSH. Inyectar via variable de entorno: export TF_VAR_my_ip='tu-ip/32'"
   type        = string
-  default     = "0.0.0.0/0"  # Por defecto abierto a todo (NO RECOMENDADO para producción)
+  sensitive   = true  # No mostrar en plan/apply
+  default     = "0.0.0.0/0"  # Por defecto abierto a todo
 }
 
 # Variables de red
@@ -51,7 +52,7 @@ variable "common_tags" {
 }
 
  variable "public_key_path" {
-   description = "Ruta a tu public key generada con: ssh-keygen -t rsa -b 4096 -f ~/.ssh/aws-ejercicio"
-   type        = string
-   default     = "~/.ssh/aws-ejercicio.pub"
- }
+  description = "Ruta a tu public key SSH generada con: ssh-keygen -t rsa -b 4096 -f ~/.ssh/terraform-aws-key"
+  type        = string
+  default     = "~/.ssh/terraform-aws-key.pub"
+}

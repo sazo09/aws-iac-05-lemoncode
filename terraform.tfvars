@@ -2,16 +2,16 @@
 # TERRAFORM.TFVARS - Valores de variables
 # ===================================
 # Este archivo contiene los VALORES específicos para tu entorno
-# ¡IMPORTANTE! Cambiar my_ip a tu IP real (nunca usar 0.0.0.0/0 en SSH en producción)
 
 aws_region   = "us-east-1"
 environment  = "learning"
 project_name = "aws-iac-05-lemoncode"
 
-# CAMBIAR ESTO: Reemplaza con tu IP pública real
-# Para obtener tu IP: curl https://api.ipify.org
-# Ejemplo: my_ip = "88.25.123.45/32"
-my_ip = "0.0.0.0/0"
+# IMPORTANTE: my_ip se inyecta via variable de entorno (TF_VAR_my_ip)
+# NO hardcodear credenciales o datos sensibles en este archivo
+# Ejecutar ANTES de terraform plan:
+#   export TF_VAR_my_ip="$(curl -s https://api.ipify.org)/32"
+#   terraform plan
 
 vpc_cidr            = "10.0.0.0/16"
 public_subnet_cidr  = "10.0.1.0/24"
@@ -23,4 +23,4 @@ common_tags = {
   Owner       = "Estudiante"
 }
 
-public_key_path = "~/.ssh/aws-ejercicio.pub"
+# public_key_path usa el valor default de variables.tf (~/.ssh/terraform-aws-key.pub)

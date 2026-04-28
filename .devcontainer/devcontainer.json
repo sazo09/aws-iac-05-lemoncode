@@ -7,7 +7,10 @@
 	"features": {
 		"ghcr.io/devcontainers/features/aws-cli:1": {},
 		"ghcr.io/devcontainers/features/terraform:1": {}
-	}
+	},
+	"mounts": [
+		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+	]// ruta agregada para que el contenedor tenga acceso a las claves ssh del host, para poder hacer conexiones ssh desde el contenedor
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
