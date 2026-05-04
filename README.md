@@ -188,6 +188,20 @@ terraform destroy
 
 ## Decisiones técnicas
 
+### Módulo VPC: terraform-aws-modules/vpc/aws
+
+Se utilizó el módulo oficial `terraform-aws-modules/vpc/aws` para refactorizar la infraestructura de red por estas razones:
+
+- **Reutilizable**: El módulo puede usarse en otros proyectos sin duplicar código
+- **Mantenible**: Los cambios en la configuración de red se hacen en un único lugar
+- **Profesional**: Sigue las mejores prácticas de la comunidad Terraform
+- **Automatizado**: El módulo gestiona automáticamente: VPC, Internet Gateway, Subnets, Route Tables
+
+Beneficios de la refactorización:
+- Reducción de código: ~60% menos líneas en `network.tf` (de 101 a 35 líneas)
+- Consistencia: Usa configuraciones validadas por la comunidad
+- Compatibilidad: Soporta todas las features necesarias para el ejercicio
+
 ### Región: us-east-1
 
 Se eligió us-east-1 por varias razones:
@@ -223,7 +237,8 @@ Si tu cuenta no soporta t3.micro, el `terraform apply` lo indicará. En ese caso
 - `variables.tf` - Declaración de variables
 - `terraform.tfvars` - Valores específicos por ambiente
 - `locals.tf` - Variables locales calculadas
-- `network.tf` - Recursos de red (VPC, subnet, IGW, route table, Security Group)
+- `modules.tf` - Módulo VPC reutilizable (terraform-aws-modules/vpc/aws)
+- `network.tf` - Recursos de red (Security Group)
 - `keypair.tf` - SSH key pair resource
 - `ec2.tf` - EC2 instance con user_data
 - `outputs.tf` - Valores de salida (IP pública, IDs de recursos, etc)
@@ -278,4 +293,4 @@ terraform fmt
 ![alt text](image-4.png)
 ---
 
-**Última actualización**: 2026-04-28
+**Última actualización**: 2026-05-04
