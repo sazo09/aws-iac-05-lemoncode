@@ -97,71 +97,91 @@ Para cambiar valores, edita `terraform.tfvars` o usa flags: `terraform plan -var
 
 ---
 
-## Ejecución
+## Ejecución completa del ejercicio
 
-### Inicializar Terraform
+### Paso 1: Inicializar Terraform
 
 ```bash
 terraform init
 ```
 
-### Ver plan de cambios
+### Paso 2: Ver plan de cambios
 
 ```bash
 terraform plan
 ```
 
-### Crear infraestructura
+### Paso 3: Crear infraestructura
 
 ```bash
+# Inyectar IP pública como variable de entorno
+export TF_VAR_my_ip="$(curl -s https://api.ipify.org)/32"
+
+# Crear la infraestructura
 terraform apply
 ```
 
-### Ver outputs (incluyendo IP pública)
-
-```bash
-terraform output
-```
-
-### Destruir infraestructura
-
-```bash
-terraform destroy
-```
-
----
-
-## Conexión a la instancia
-
-Una vez que `terraform apply` termine, obtén la IP pública:
+### Paso 4: Obtener IP pública de la instancia
 
 ```bash
 terraform output instance_public_ip
 ```
 
-Conectar por SSH:
+Este comando te mostrará algo como: `44.200.120.94`
+
+### Paso 5: Conectar por SSH a la instancia
 
 ```bash
+# Reemplaza <PUBLIC_IP> con la IP del paso anterior
 ssh -i ~/.ssh/terraform-aws-key ec2-user@<PUBLIC_IP>
 ```
 
-Dentro de la instancia, verificar Docker:
+Una vez conectado, verifica que Docker está instalado:
 
 ```bash
 docker --version
-docker ps
 ```
 
-Desplegar NGINX:
+### Paso 6: Desplegar NGINX en Docker
+
+Dentro de la instancia (vía SSH), ejecuta:
 
 ```bash
 docker run -d -p 80:80 --name nginx nginx
 ```
 
-Verificar que NGINX responde:
+Verifica que el contenedor está corriendo:
 
 ```bash
+docker ps
+```
+
+Salir de SSH:
+
+```bash
+exit
+```
+
+### Paso 7: Probar que NGINX responde en HTTP
+
+Desde tu máquina local (en el container), prueba:
+
+```bash
+# Opción 1: curl
 curl http://<PUBLIC_IP>
+
+# Opción 2: acceder desde navegador
+# Abre: http://<PUBLIC_IP>
+```
+
+Deberías ver la página por defecto de NGINX con el mensaje "Welcome to nginx!".
+
+### Destruir la infraestructura
+
+Cuando termines de hacer pruebas, destruye los recursos para evitar costos:
+
+```bash
+terraform destroy
 ```
 
 ---
@@ -249,6 +269,13 @@ terraform fmt
 
 ![Docker version running](image-2.png)
 
+
+###Nginx installed
+![alt text](image-3.png)
+
+
+###Nginx connected
+![alt text](image-4.png)
 ---
 
 **Última actualización**: 2026-04-28
