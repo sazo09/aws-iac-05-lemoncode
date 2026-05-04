@@ -15,7 +15,7 @@ resource "aws_instance" "main" {
   instance_type = local.instance_type_free_tier
 
   # Networking
-  subnet_id              = aws_subnet.public_subnet.id
+  subnet_id              = module.vpc.public_subnets[0]
   vpc_security_group_ids = [aws_security_group.mi_sg.id]
 
   # SSH Access
@@ -37,7 +37,7 @@ resource "aws_instance" "main" {
 
   # Esperar a que los recursos de red estén listos
   depends_on = [
-    aws_internet_gateway.igw,
+    module.vpc,
     aws_security_group.mi_sg
   ]
 }

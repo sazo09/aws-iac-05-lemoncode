@@ -7,35 +7,35 @@
 # VPC Outputs
 output "vpc_id" {
   description = "ID de la VPC creada"
-  value       = aws_vpc.main.id
+  value       = module.vpc.vpc_id
 }
 
 output "vpc_cidr" {
   description = "CIDR block de la VPC"
-  value       = aws_vpc.main.cidr_block
+  value       = module.vpc.vpc_cidr_block
 }
 
 # Internet Gateway Outputs
 output "internet_gateway_id" {
   description = "ID del Internet Gateway"
-  value       = aws_internet_gateway.igw.id
+  value       = module.vpc.igw_id
 }
 
 # Subnet Outputs
 output "public_subnet_id" {
   description = "ID de la subnet pública"
-  value       = aws_subnet.public_subnet.id
+  value       = module.vpc.public_subnets[0]
 }
 
 output "public_subnet_cidr" {
   description = "CIDR block de la subnet pública"
-  value       = aws_subnet.public_subnet.cidr_block
+  value       = var.public_subnet_cidr
 }
 
 # Route Table Outputs
 output "route_table_id" {
   description = "ID de la tabla de rutas pública"
-  value       = aws_route_table.public_rt.id
+  value       = module.vpc.public_route_table_ids[0]
 }
 
 # Security Group Outputs
@@ -67,7 +67,7 @@ output "access_rules_summary" {
     http_access = "Puerto 80: Accesible desde cualquier IP (0.0.0.0/0)"
     ssh_access  = "Puerto 22: Accesible desde ${var.my_ip}"
   }
-  sensitive = true  # ← Contiene my_ip que es sensible
+  sensitive = true
 }
 
 output "key_pair_name"{
